@@ -1,5 +1,10 @@
 {
-  "version": "0.0.0",
+  "name": "secure-doc",
+  "description": "Ask for OTP before display documents (PDF, image, etc..)",
+  "license": "MIT",
+  "author": "Stéphane LEGOUFFE <slegouffe@gmail.com>",
+  "repository": "https://github.com/slegouffe/strapi-plugin-secure-doc",
+  "version": "1.0.0",
   "keywords": [],
   "type": "commonjs",
   "exports": {
@@ -43,9 +48,5 @@
     "name": "secure-doc",
     "displayName": "Secure Doc",
     "description": "Ask for OTP before display documents (PDF, image, etc..)"
-  },
-  "name": "secure-doc",
-  "description": "Ask for OTP before display documents (PDF, image, etc..)",
-  "license": "MIT",
-  "author": "Stéphane LEGOUFFE <slegouffe@gmail.com>"
+  }
 }
