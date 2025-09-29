@@ -11,6 +11,16 @@ export default [
   },
   {
     method: 'POST',
+    path: '/check-email',
+    handler: 'controller.checkEmail',
+    config: {
+      auth: false,
+      policies: [
+      ],
+    },
+  },
+  {
+    method: 'POST',
     path: '/verify-otp',
     handler: 'controller.verifyOtp',
     config: {

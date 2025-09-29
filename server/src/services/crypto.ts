@@ -63,7 +63,7 @@ const cryptoService = ({ strapi }: { strapi: Core.Strapi }) => ({
   
     const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
     const payload = JSON.parse(plaintext.toString('utf8'));
-  
+    
     // check expiration
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < now) {

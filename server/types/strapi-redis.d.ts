@@ -13,6 +13,10 @@ declare module "@strapi/strapi" {
       };
       plugin(name: string): any;
       service(name: string): any;
+      query(name: string): any;
+      db: {
+        query(name: string): any;
+      };
     }
   }
 }
