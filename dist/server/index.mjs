@@ -13,7 +13,6 @@ const config = {
 const contentTypes = {};
 const controller = ({ strapi }) => ({
   async check(ctx) {
-    console.log("********* check *********");
     const { email, docId } = ctx.request.params;
     if (!email || !docId) return ctx.badRequest("email & docId required");
     try {
@@ -35,7 +34,19 @@ const controller = ({ strapi }) => ({
         const emailDecrypted = strapi.plugin("secure-doc").services.cryptoService.decrypt(email);
         const OTP = strapi.plugin("secure-doc").services.otp.generateOtp(4);
         await strapi.redis.connections.default.client.set(OTP, emailDecrypted.data, "EX", 60 * 60);
-        return ctx.badRequest("docId", strapi.plugin("secure-doc").services.cryptoService.encrypt(error[1], { ttlSeconds: 60 * 60 }));
+        const newDocId = strapi.plugin("secure-doc").services.cryptoService.encrypt(error[1], { ttlSeconds: 60 * 60 });
+        await strapi.plugin("email-designer-5").service("email").sendTemplatedEmail(
+          {
+            to: emailDecrypted.data
+          },
+          {
+            templateReferenceId: process.env.SECURE_DOC_EMAIL_TEMPLATE_OTP_ID
+          },
+          {
+            otp: OTP
+          }
+        );
+        return ctx.badRequest("docId", newDocId);
       }
     }
   },
@@ -65,17 +76,22 @@ const controller = ({ strapi }) => ({
       });
       const isFileOwner = elus.filter((elu) => elu.documents && elu.documents.some((document) => document.id === file.id));
       if (isFileOwner.length === 0) return ctx.badRequest("email");
-      const url = {
-        name: file.name,
-        link: `${process.env.FRONT_URL}/documents/${encryptedEmail}/${docId}`
-      };
-      console.log(url);
+      await strapi.plugin("email-designer-5").service("email").sendTemplatedEmail(
+        {
+          to: user.email
+        },
+        {
+          templateReferenceId: process.env.SECURE_DOC_EMAIL_TEMPLATE_RESEND_ID
+        },
+        {
+          link: `${process.env.FRONT_URL}/documents/${encryptedEmail}/${docId}`
+        }
+      );
       return ctx.send(200);
     } catch (e) {
       console.log(e);
       return ctx.badRequest("email");
     }
-    return ctx.send({ message: "Email verified" });
   },
   async verifyOtp(ctx) {
     const { email, otp } = ctx.request.body;
@@ -222,3 +238,4 @@ const index = {
 export {
   index as default
 };
+//# sourceMappingURL=index.mjs.map
