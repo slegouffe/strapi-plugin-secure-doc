@@ -22,26 +22,35 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     } catch (e) {
       const error = e.message.split('|');
       if (error[0] === 'Token expired') {
-        const emailDecrypted = strapi.plugin('secure-doc').services.cryptoService.decrypt(email);
-        const OTP = strapi.plugin('secure-doc').services.otp.generateOtp(4);
-        await strapi.redis.connections.default.client.set(OTP, emailDecrypted.data, 'EX', 60 * 60);
-        
-        const newDocId = strapi.plugin('secure-doc').services.cryptoService.encrypt(error[1], { ttlSeconds: 60 * 60 });
-        const notification = await strapi
-          .plugin('email-designer-5')
-          .service('email')
-          .sendTemplatedEmail(
-            {
-              to: emailDecrypted.data,
-            },
-            {
-              templateReferenceId: process.env.SECURE_DOC_EMAIL_TEMPLATE_OTP_ID,
-            },
-            {
-              otp: OTP
-            }
-          );
-        return ctx.badRequest('docId', newDocId );
+        console.log('***** Token expired *****');
+        try {
+          const emailDecrypted = strapi.plugin('secure-doc').services.cryptoService.decrypt(email);
+          const OTP = strapi.plugin('secure-doc').services.otp.generateOtp(4);
+          console.log('***** OTP generated ***** => ', OTP);
+          console.log('***** Email decrypted ***** => ', emailDecrypted.data);
+          await strapi.redis.connections.default.client.set(OTP, emailDecrypted.data, 'EX', 60 * 60);
+          
+          const newDocId = strapi.plugin('secure-doc').services.cryptoService.encrypt(error[1], { ttlSeconds: 60 * 60 });
+          const notification = await strapi
+            .plugin('email-designer-5')
+            .service('email')
+            .sendTemplatedEmail(
+              {
+                to: emailDecrypted.data,
+              },
+              {
+                templateReferenceId: process.env.SECURE_DOC_EMAIL_TEMPLATE_OTP_ID,
+              },
+              {
+                otp: OTP
+              }
+            );
+          console.log(notification);
+          return ctx.badRequest('docId', newDocId );
+        } catch (e) {
+          console.log('***** Error sending email ***** => ', e);
+        }
+        return ctx.badRequest('error', e);
       }
     }
   },

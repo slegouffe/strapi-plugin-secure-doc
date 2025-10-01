@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/slegouffe/strapi-plugin-secure-doc"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "keywords": [],
   "type": "commonjs",
   "exports": {
