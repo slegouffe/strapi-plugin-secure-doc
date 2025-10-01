@@ -13,6 +13,7 @@ const config = {
 const contentTypes = {};
 const controller = ({ strapi }) => ({
   async check(ctx) {
+    console.log("***** Secure Doc Check *****");
     const { email, docId } = ctx.request.params;
     if (!email || !docId) return ctx.badRequest("email & docId required");
     try {
@@ -29,6 +30,7 @@ const controller = ({ strapi }) => ({
       const privateUrl = await strapi.service("api::elu.elu").getPrivateUrl(docIdDecrypted.data);
       return ctx.send(privateUrl);
     } catch (e) {
+      console.log("***** Error ***** => ", e);
       const error = e.message.split("|");
       if (error[0] === "Token expired") {
         console.log("***** Token expired *****");
